@@ -197,7 +197,8 @@ def get_loader(img_size, rgb_path, depth_path, mode='train'):
         ])
 
     if mode == 'train':
-        dataset = ImageData(dataset_list, data_root, transform, depth_transform, mode, img_size, scale_size, t_transform, label_14_transform, label_28_transform, label_56_transform, label_112_transform)
+        print("How did you get here?")
+        # dataset = ImageData(dataset_list, data_root, transform, depth_transform, mode, img_size, scale_size, t_transform, label_14_transform, label_28_transform, label_56_transform, label_112_transform)
     else:
         dataset = ImageData(transform, depth_transform, mode, rgb_path, depth_path)
 
