@@ -15,8 +15,8 @@ if __name__ == "__main__":
     parser.add_argument('--train_steps', default=60000, type=int, help='total training steps')
     parser.add_argument('--img_size', default=224, type=int, help='network input size')
     parser.add_argument('--pretrained_model', default='./pretrained_model/80.7_T2T_ViT_t_14.pth.tar', type=str, help='load Pretrained model')
-    parser.add_argument('--lr_decay_gamma', default=0.1, type=int, help='learning rate decay')
-    parser.add_argument('--lr', default=1e-4, type=int, help='learning rate')
+    parser.add_argument('--lr_decay_gamma', default=0.1, type=float, help='learning rate decay')
+    parser.add_argument('--lr', default=1e-4, type=float, help='learning rate')
     parser.add_argument('--epochs', default=200, type=int, help='epochs')
     parser.add_argument('--batch_size', default=11, type=int, help='batch_size')
     parser.add_argument('--stepvalue1', default=30000, type=int, help='the step 1 for adjusting lr')
@@ -26,8 +26,8 @@ if __name__ == "__main__":
 
     # test
     parser.add_argument('--Testing', default=False, type=bool, help='Testing or not')
-    parser.add_argument('--save_test_path_root', default='preds/', type=str, help='save saliency maps path')
-    parser.add_argument('--test_paths', type=str, default='DUTS/DUTS-TE+ECSSD+HKU-IS+PASCAL-S+DUT-O+BSD')
+    parser.add_argument('--source', required=True, type=str, help='path to the source directory containing test images')
+    parser.add_argument('--target', required=True, type=str, help='path to the target directory for saving test results')
 
     # evaluation
     parser.add_argument('--Evaluation', default=False, type=bool, help='Evaluation or not')
