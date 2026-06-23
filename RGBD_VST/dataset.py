@@ -66,10 +66,10 @@ def load_test_list(rgb_path, depth_path):
 
 
 class ImageData(data.Dataset):
-    def __init__(self, dataset_list, data_root, transform, depth_transform, mode, rgb_path, depth_path, img_size=None, scale_size=None, t_transform=None, label_14_transform=None, label_28_transform=None, label_56_transform=None, label_112_transform=None):
+    def __init__(self, transform, depth_transform, mode, rgb_path, depth_path, img_size=None, scale_size=None, t_transform=None, label_14_transform=None, label_28_transform=None, label_56_transform=None, label_112_transform=None):
 
         if mode == 'train':
-            self.image_path, self.depth_path, self.label_path, self.contour_path = load_list(dataset_list, data_root)
+            print("How did you get here?")
         else:
             self.image_path, self.depth_path = load_test_list(rgb_path, depth_path)
 
@@ -149,7 +149,7 @@ class ImageData(data.Dataset):
         return len(self.image_path)
 
 
-def get_loader(dataset_list, data_root, img_size, rgb_path, depth_path, mode='train'):
+def get_loader(img_size, rgb_path, depth_path, mode='train'):
 
     if mode == 'train':
 
@@ -199,7 +199,7 @@ def get_loader(dataset_list, data_root, img_size, rgb_path, depth_path, mode='tr
     if mode == 'train':
         dataset = ImageData(dataset_list, data_root, transform, depth_transform, mode, img_size, scale_size, t_transform, label_14_transform, label_28_transform, label_56_transform, label_112_transform)
     else:
-        dataset = ImageData(dataset_list, data_root, transform, depth_transform, mode, rgb_path, depth_path)
+        dataset = ImageData(transform, depth_transform, mode, rgb_path, depth_path)
 
     # data_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_thread)
     return dataset

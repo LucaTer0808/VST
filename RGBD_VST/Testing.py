@@ -21,7 +21,7 @@ def test_net(args):
     net.eval()
 
     # load model (multi-gpu)
-    model_path = args.save_model_dir + 'RGBD_VST.pth'
+    model_path = '/scratch/tmp/lterfehr/models/VST/RGBD_VST/pretrained_model/' + 'RGBD_VST.pth'
     state_dict = torch.load(model_path)
     from collections import OrderedDict
 
@@ -39,53 +39,43 @@ def test_net(args):
     # model_dict = net.state_dict()
     # print('Model loaded from {}'.format(args.test_model_dir))
 
-    test_paths = args.test_paths.split('+')
-    for test_dir_img in test_paths:
 
-        test_dataset = get_loader(test_dir_img, "", args.img_size, rgb_path=args.rgb, depth_path=args.depth, mode='test')
+    test_dataset = get_loader(args.img_size, rgb_path=args.rgb, depth_path=args.depth, mode='test')
 
-        test_loader = data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, num_workers=1)
-        print('''
-                   Starting testing:
-                       dataset: {}
-                       Testing size: {}
-                   '''.format(test_dir_img.split('/')[0], len(test_loader.dataset)))
+    test_loader = data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, num_workers=1)
+    print('''
+                Starting testing:
+                    RGB Path: {}
+                    Depth Path: {}
+                    Testing size: {}
+                '''.format(args.rgb, args.depth, len(test_loader.dataset)))
 
-        time_list = []
-        for i, data_batch in enumerate(test_loader):
-            images, depths, image_w, image_h, image_path = data_batch
-            images, depths = Variable(images.cuda()), Variable(depths.cuda())
+    for i, data_batch in enumerate(test_loader):
+        images, depths, image_w, image_h, image_path = data_batch
+        images, depths = Variable(images.cuda()), Variable(depths.cuda())
 
-            starts = time.time()
-            outputs_saliency, outputs_contour = net(images, depths)
-            ends = time.time()
-            time_use = ends - starts
-            time_list.append(time_use)
+        outputs_saliency, outputs_contour = net(images, depths)
 
-            mask_1_16, mask_1_8, mask_1_4, mask_1_1 = outputs_saliency
+        mask_1_16, mask_1_8, mask_1_4, mask_1_1 = outputs_saliency
 
-            image_w, image_h = int(image_w[0]), int(image_h[0])
+        image_w, image_h = int(image_w[0]), int(image_h[0])
 
-            output_s = F.sigmoid(mask_1_1)
+        output_s = F.sigmoid(mask_1_1)
 
-            output_s = output_s.data.cpu().squeeze(0)
+        output_s = output_s.data.cpu().squeeze(0)
 
-            transform = trans.Compose([
-                transforms.ToPILImage(),
-                trans.Scale((image_w, image_h))
-            ])
-            output_s = transform(output_s)
+        transform = trans.Compose([
+            transforms.ToPILImage(),
+            trans.Scale((image_w, image_h))
+        ])
+        output_s = transform(output_s)
 
-            dataset = test_dir_img.split('/')[0]
-            filename = image_path[0].split('/')[-1].split('.')[0]
+        filename = image_path[0].split('/')[-1].split('.')[0]
 
-            # save saliency maps
-            save_test_path = args.save_test_path_root + dataset + '/RGBD_VST/'
-            if not os.path.exists(save_test_path):
-                os.makedirs(save_test_path)
-            output_s.save(os.path.join(save_test_path, filename + '.png'))
-
-        print('dataset:{}, cost:{}'.format(test_dir_img.split('/')[0], np.mean(time_list)*1000))
+        # save saliency maps
+        if not os.path.exists(args.target):
+            os.makedirs(args.target)
+        output_s.save(os.path.join(args.target, filename + '.png'))
 
 
 
