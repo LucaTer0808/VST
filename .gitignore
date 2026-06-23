@@ -1,3 +1,4 @@
 pretrained_model/
 .venv/
+**/.venv/
 **/__pycache__/
