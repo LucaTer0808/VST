@@ -39,7 +39,7 @@ def test_net(args):
     test_dir_img = args.source  
     save_test_path = args.target 
 
-    test_dataset = get_loader(test_dir_img, args.data_root, args.img_size, mode='test')
+    test_dataset = get_loader(test_dir_img, "", args.img_size, mode='test')
     test_loader = data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, num_workers=1)
     
     print('''
