@@ -28,18 +28,19 @@ def load_test_list(test_path, data_root):
 
     images = []
 
-    if 'DUTS' in test_path:
-        img_root = data_root + test_path
-    else:
-        img_root = data_root + test_path
+    img_root = data_root + test_path
+
+    if not img_root.endswith('/'):
+        img_root += '/'
 
     img_files = os.listdir(img_root)
-    if '/HKU-IS/' in img_root:
-        ext = '.png'
-    else:
-        ext = '.jpg'
+
+    valid_extensions = ('.jpg', '.jpeg', '.png')
+
     for img in img_files:
-        images.append(img_root + img[:-4] + ext)
+        if img.endswith(valid_extensions):
+            base, ext = os.path.splitext(img)
+            images.append(img_root + base + ext)
 
     return images
 
