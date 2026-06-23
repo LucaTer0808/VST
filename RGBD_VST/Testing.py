@@ -50,7 +50,11 @@ def test_net(args):
                     Testing size: {}
                 '''.format(args.rgb, args.depth, len(test_loader.dataset)))
 
+    torch.cuda.synchronize()
+    start_time = time.time()
+
     for i, data_batch in enumerate(test_loader):
+        print('Testing process: {}/{}'.format(i + 1, len(test_loader.dataset)))
         images, depths, image_w, image_h, image_path = data_batch
         images, depths = Variable(images.cuda()), Variable(depths.cuda())
 
@@ -77,6 +81,18 @@ def test_net(args):
             os.makedirs(args.target)
         output_s.save(os.path.join(args.target, filename + '.png'))
 
+    torch.cuda.synchronize()
+    end_time = time.time()
+
+    total_time = end_time - start_time
+    time_per_image = total_time / len(test_loader.dataset) if len(test_loader.dataset) > 0 else 0
+    images_processed = len(test_loader.dataset)
+
+    eval_path = os.path.join(args.target, 'evaluation.txt')
+    with open(eval_path, 'w') as f:
+        f.write(f'Total images processed: {images_processed}\n')
+        f.write(f'Total testing time: {total_time:.4f} seconds\n')
+        f.write(f'Time per image: {time_per_image:.4f} seconds\n')
 
 
 
