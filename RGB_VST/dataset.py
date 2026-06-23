@@ -29,9 +29,9 @@ def load_test_list(test_path, data_root):
     images = []
 
     if 'DUTS' in test_path:
-        img_root = data_root + test_path + '/DUTS-TE-Image/'
+        img_root = data_root + test_path
     else:
-        img_root = data_root + test_path + '/images/'
+        img_root = data_root + test_path
 
     img_files = os.listdir(img_root)
     if '/HKU-IS/' in img_root:
