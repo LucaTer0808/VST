@@ -1,4 +1,4 @@
-pretrained_model/
+**/pretrained_model/
 .venv/
 **/.venv/
 **/__pycache__/
