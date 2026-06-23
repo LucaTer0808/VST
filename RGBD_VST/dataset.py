@@ -29,32 +29,49 @@ def load_list(dataset_list, data_root):
     return images, depths, labels, contours
 
 
-def load_test_list(test_path, data_root):
+def load_test_list(rgb_path, depth_path):
 
     images = []
     depths = []
 
-    if test_path in ['NJUD', 'NLPR', 'DUTLF-Depth', 'ReDWeb-S']:
-        depth_root = data_root + test_path + '/testset/depth/'
-    else:
-        depth_root = data_root + test_path + '/depth/'
+    # Slashes am Ende absichern, falls sie beim Aufruf vergessen wurden
+    if not rgb_path.endswith('/'):
+        rgb_path += '/'
+    if not depth_path.endswith('/'):
+        depth_path += '/'
 
-    depth_files = os.listdir(depth_root)
+    # Wir lesen den Tiefenkarten-Ordner aus
+    depth_files = os.listdir(depth_path)
+    
+    # Erlaubte Bildendungen (robust gegen .DS_Store Fehler)
+    valid_extensions = ('.jpg', '.jpeg', '.png')
 
-    for depth in depth_files:
-        images.append(depth_root.replace('/depth/', '/RGB/') + depth[:-4] + '.jpg')
-        depths.append(depth_root + depth)
+    for depth_file in depth_files:
+        if depth_file.endswith(valid_extensions):
+            # 1. Den reinen Dateinamen (z.B. "bild_001") heraustrennen
+            base_name, ext = os.path.splitext(depth_file)
+            
+            # 2. Die exakt gleichbenannte RGB-Datei im RGB-Ordner suchen
+            # Wir prüfen, ob das RGB-Bild als .jpg oder .png existiert
+            if os.path.exists(rgb_path + base_name + '.jpg'):
+                images.append(rgb_path + base_name + '.jpg')
+                depths.append(depth_path + depth_file)
+            elif os.path.exists(rgb_path + base_name + '.png'):
+                images.append(rgb_path + base_name + '.png')
+                depths.append(depth_path + depth_file)
+            else:
+                print(f"Warnung: Keine passende RGB-Datei für {depth_file} gefunden!")
 
     return images, depths
 
 
 class ImageData(data.Dataset):
-    def __init__(self, dataset_list, data_root, transform, depth_transform, mode, img_size=None, scale_size=None, t_transform=None, label_14_transform=None, label_28_transform=None, label_56_transform=None, label_112_transform=None):
+    def __init__(self, dataset_list, data_root, transform, depth_transform, mode, rgb_path, depth_path, img_size=None, scale_size=None, t_transform=None, label_14_transform=None, label_28_transform=None, label_56_transform=None, label_112_transform=None):
 
         if mode == 'train':
             self.image_path, self.depth_path, self.label_path, self.contour_path = load_list(dataset_list, data_root)
         else:
-            self.image_path, self.depth_path = load_test_list(dataset_list, data_root)
+            self.image_path, self.depth_path = load_test_list(rgb_path, depth_path)
 
         self.transform = transform
         self.depth_transform = depth_transform
@@ -132,7 +149,7 @@ class ImageData(data.Dataset):
         return len(self.image_path)
 
 
-def get_loader(dataset_list, data_root, img_size, mode='train'):
+def get_loader(dataset_list, data_root, img_size, rgb_path, depth_path, mode='train'):
 
     if mode == 'train':
 
@@ -182,7 +199,7 @@ def get_loader(dataset_list, data_root, img_size, mode='train'):
     if mode == 'train':
         dataset = ImageData(dataset_list, data_root, transform, depth_transform, mode, img_size, scale_size, t_transform, label_14_transform, label_28_transform, label_56_transform, label_112_transform)
     else:
-        dataset = ImageData(dataset_list, data_root, transform, depth_transform, mode)
+        dataset = ImageData(dataset_list, data_root, transform, depth_transform, mode, rgb_path, depth_path)
 
     # data_loader = data.DataLoader(dataset=dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_thread)
     return dataset

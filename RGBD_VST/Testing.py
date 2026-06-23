@@ -42,7 +42,7 @@ def test_net(args):
     test_paths = args.test_paths.split('+')
     for test_dir_img in test_paths:
 
-        test_dataset = get_loader(test_dir_img, args.data_root, args.img_size, mode='test')
+        test_dataset = get_loader(test_dir_img, "", args.img_size, rgb_path=args.rgb, depth_path=args.depth, mode='test')
 
         test_loader = data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, num_workers=1)
         print('''
