@@ -57,6 +57,7 @@ def test_net(args):
     start_time = time.time()
 
     for i, data_batch in enumerate(test_loader):
+        print('Processing image {}/{}'.format(i + 1, len(test_loader.dataset)))
         images, image_w, image_h, image_path = data_batch
         images = Variable(images.cuda())
 
@@ -82,6 +83,7 @@ def test_net(args):
         # Speichern im direkt angegebenen Verzeichnis
         output_s.save(os.path.join(save_test_path, filename + '.png'))
 
+    print('All images processed.')
     torch.cuda.synchronize()
     end_time = time.time()
     total_time = end_time - start_time
